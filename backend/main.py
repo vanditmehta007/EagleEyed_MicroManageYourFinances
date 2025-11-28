@@ -21,7 +21,8 @@ from backend.routers import (
     admin_router,
     health_router,
     ocr_router,
-    settings_router
+    settings_router,
+    agent_router
 )
 
 app = FastAPI(
@@ -88,6 +89,7 @@ app.include_router(admin_router.router, prefix="/api", tags=["Admin"])
 app.include_router(health_router.router, tags=["Health"])
 app.include_router(ocr_router.router, prefix="/api", tags=["OCR"])
 app.include_router(settings_router.router, prefix="/api", tags=["Settings"])
+app.include_router(agent_router.router, prefix="/api")
 
 @app.get("/")
 def root():

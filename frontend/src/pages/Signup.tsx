@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Label } from '../components/ui/label';
+import { Eye, EyeOff, Lock, Mail, User, UserCircle } from 'lucide-react';
 
 const Signup: React.FC = () => {
     const [name, setName] = useState('');
@@ -8,6 +14,7 @@ const Signup: React.FC = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -17,17 +24,11 @@ const Signup: React.FC = () => {
 
         try {
             const roleSelect = (e.target as any).role;
-            const role = roleSelect.value.toLowerCase(); // Ensure lowercase for backend enum
-
-            // Map "admin" to "ca" or "client" if backend doesn't support admin signup directly yet, 
-            // or ensure backend supports "admin". The model says Literal["client", "ca"].
-            // So we should restrict to client/ca for now or update backend.
-            // Let's assume we map Admin -> CA for now or just pass it if we update backend.
-            // Actually, let's stick to what the model supports: client or ca.
+            const role = roleSelect.value.toLowerCase();
 
             let finalRole = role;
             if (role !== 'client' && role !== 'ca') {
-                finalRole = 'ca'; // Default fallback or handle error
+                finalRole = 'ca';
             }
 
             const response = await api.post('/auth/signup', {
@@ -37,18 +38,7 @@ const Signup: React.FC = () => {
                 role: finalRole
             });
 
-            // Auto login after signup
-            const { access_token } = response.data;
-            const user = {
-                id: 'new_user',
-                email,
-                name,
-                role: finalRole
-            };
-
-            // We might want to just navigate to login, but auto-login is nicer
-            // login(access_token, user); 
-            navigate('/login'); // Let's force login to be safe
+            navigate('/login');
 
         } catch (err: any) {
             console.error('Signup error:', err);
@@ -59,87 +49,130 @@ const Signup: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
-            <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent mb-2">
-                        Get Started
-                    </h1>
-                    <p className="text-slate-400">Create your Eagle Eyed account</p>
-                </div>
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="w-full max-w-md z-10"
+            >
+                <Card className="border-border shadow-xl bg-card">
+                    <CardHeader className="space-y-1 text-center">
+                        <CardTitle className="text-3xl font-bold text-primary">
+                            Get Started
+                        </CardTitle>
+                        <CardDescription>
+                            Create your Eagle Eyed account
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            {error && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    className="bg-destructive/15 text-destructive text-sm p-3 rounded-md border border-destructive/20"
+                                >
+                                    {error}
+                                </motion.div>
+                            )}
 
-                {error && (
-                    <div className="bg-red-900/20 border border-red-900/50 text-red-400 p-3 rounded-lg mb-6 text-sm text-center">
-                        {error}
-                    </div>
-                )}
+                            <div className="space-y-2">
+                                <Label htmlFor="role">Select Role</Label>
+                                <div className="relative">
+                                    <UserCircle className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <select
+                                        id="role"
+                                        name="role"
+                                        className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 pl-9 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+                                        defaultValue="CA"
+                                    >
+                                        <option value="CA">Chartered Accountant (CA)</option>
+                                        <option value="Client">Client</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Select Role</label>
-                        <select
-                            className="input-field appearance-none"
-                            defaultValue="CA"
-                            name="role"
-                        >
-                            <option value="CA">Chartered Accountant (CA)</option>
-                            <option value="Client">Client</option>
-                        </select>
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Full Name</Label>
+                                <div className="relative">
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="name"
+                                        type="text"
+                                        placeholder="John Doe"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="pl-9"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Full Name</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="input-field"
-                            placeholder="John Doe"
-                            required
-                        />
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="name@example.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="pl-9"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="input-field"
-                            placeholder="you@example.com"
-                            required
-                        />
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="password">Password</Label>
+                                <div className="relative">
+                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="pl-9 pr-9"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                    </button>
+                                </div>
+                            </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="input-field"
-                            placeholder="••••••••"
-                            required
-                        />
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full btn-primary py-3 text-lg shadow-lg shadow-blue-900/20"
-                    >
-                        {loading ? 'Creating Account...' : 'Create Account'}
-                    </button>
-                </form>
-
-                <div className="mt-6 text-center text-sm text-slate-400">
-                    Already have an account?{' '}
-                    <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium">
-                        Sign in
-                    </Link>
-                </div>
-            </div >
-        </div >
+                            <Button
+                                type="submit"
+                                className="w-full bg-primary hover:bg-primary/90 transition-all duration-300"
+                                disabled={loading}
+                            >
+                                {loading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                        Creating Account...
+                                    </div>
+                                ) : 'Create Account'}
+                            </Button>
+                        </form>
+                    </CardContent>
+                    <CardFooter className="flex justify-center">
+                        <p className="text-sm text-muted-foreground">
+                            Already have an account?{' '}
+                            <Link to="/login" className="text-primary hover:underline font-medium">
+                                Sign in
+                            </Link>
+                        </p>
+                    </CardFooter>
+                </Card>
+            </motion.div>
+        </div>
     );
 };
 

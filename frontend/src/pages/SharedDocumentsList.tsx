@@ -52,7 +52,7 @@ const SharedDocumentsList: React.FC = () => {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
-                <div className="animate-pulse text-slate-400">Loading clients...</div>
+                <div className="animate-pulse text-muted-foreground">Loading clients...</div>
             </div>
         );
     }
@@ -60,15 +60,15 @@ const SharedDocumentsList: React.FC = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Shared Documents</h1>
-                <p className="text-slate-400">View documents shared by your clients</p>
+                <h1 className="text-3xl font-bold text-foreground mb-2">Shared Documents</h1>
+                <p className="text-muted-foreground">View documents shared by your clients</p>
             </div>
 
             {clients.length === 0 ? (
-                <div className="card text-center py-12">
-                    <FolderOpen className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-white mb-2">No Clients Yet</h3>
-                    <p className="text-slate-400">
+                <div className="bg-card border border-border rounded-xl shadow-sm p-12 text-center">
+                    <FolderOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-foreground mb-2">No Clients Yet</h3>
+                    <p className="text-muted-foreground">
                         Accept client invitations to view their shared documents
                     </p>
                 </div>
@@ -78,20 +78,20 @@ const SharedDocumentsList: React.FC = () => {
                         <div
                             key={client.id}
                             onClick={() => navigate(`/share/documents/${client.id}`)}
-                            className="card hover:border-blue-500/50 transition-all cursor-pointer group"
+                            className="bg-card border border-border rounded-xl shadow-sm p-6 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer group"
                         >
                             <div className="flex items-start justify-between mb-4">
-                                <div className="w-12 h-12 bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                                     <Building size={24} />
                                 </div>
-                                <ChevronRight className="text-slate-600 group-hover:text-blue-400 transition-colors" size={20} />
+                                <ChevronRight className="text-muted-foreground group-hover:text-blue-600 transition-colors" size={20} />
                             </div>
 
-                            <h3 className="text-lg font-bold text-white mb-2 truncate">
+                            <h3 className="text-lg font-bold text-foreground mb-2 truncate">
                                 {client.name}
                             </h3>
 
-                            <div className="space-y-1 text-sm text-slate-400 mb-4">
+                            <div className="space-y-1 text-sm text-muted-foreground mb-4">
                                 {client.gstin && (
                                     <p className="truncate">GSTIN: {client.gstin}</p>
                                 )}
@@ -100,14 +100,14 @@ const SharedDocumentsList: React.FC = () => {
                                 )}
                             </div>
 
-                            <div className="flex items-center justify-between pt-4 border-t border-slate-700">
-                                <div className="flex items-center gap-2 text-slate-400">
+                            <div className="flex items-center justify-between pt-4 border-t border-border">
+                                <div className="flex items-center gap-2 text-muted-foreground">
                                     <FileText size={16} />
                                     <span className="text-sm">
                                         {documentCounts[client.id] || 0} documents
                                     </span>
                                 </div>
-                                <div className="flex items-center gap-2 text-slate-500 text-xs">
+                                <div className="flex items-center gap-2 text-muted-foreground text-xs">
                                     <Calendar size={14} />
                                     <span>
                                         {new Date(client.created_at).toLocaleDateString()}

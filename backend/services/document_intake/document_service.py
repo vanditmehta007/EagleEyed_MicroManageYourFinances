@@ -78,8 +78,60 @@ class DocumentIntakeService:
             "expense_bill": InvoiceParser(),  # Reuse invoice parser
             "transaction_sheet": None  # Handled by SheetService
         }
-        
-        # - Azure Service Bus
+        return parser_map.get(doc_type)
+
+    async def store_document(self, file: UploadFile, doc_type: str, client_id: str, folder_category: str = None) -> Document:
+        """
+        Upload file to storage and create database record.
+        """
+        try:
+            # Read file content
+            content = await file.read()
+            
+            # Generate unique path
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            clean_filename = file.filename.replace(" ", "_")
+            file_path = f"{client_id}/{folder_category or 'Uncategorized'}/{timestamp}_{clean_filename}"
+            
+            # Upload to Supabase Storage
+            self.supabase.storage.from_(self.STORAGE_BUCKET).upload(
+                path=file_path,
+                file=content,
+                file_options={"content-type": file.content_type}
+            )
+            
+            # Create DB record
+            file_size = len(content)
+            
+            data = {
+                "client_id": client_id,
+                "file_path": file_path,
+                "file_type": doc_type,
+                "original_filename": file.filename,
+                "folder_category": folder_category or "Uncategorized",
+                "file_size": file_size,
+                "metadata": {"content_type": file.content_type}
+            }
+            
+            response = self.supabase.table("documents").insert(data).execute()
+            
+            if response.data:
+                logger.info(f"Document stored successfully: {response.data[0]['id']}")
+                return Document(**response.data[0])
+            else:
+                raise Exception("Failed to insert document record")
+                
+        except Exception as e:
+            logger.error(f"Failed to store document: {e}")
+            raise e
+
+    def trigger_metadata_extraction(self, document_id: str) -> None:
+        """
+        Trigger the metadata extraction process.
+        """
+        logger.info(f"Metadata extraction triggered for document {document_id}")
+        # Placeholder for actual extraction logic
+        pass
 
     def trigger_ledger_classification(self, document_id: str) -> None:
         """

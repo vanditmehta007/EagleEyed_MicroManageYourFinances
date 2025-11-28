@@ -157,6 +157,9 @@ class TransactionExtractionService:
                         "raw_line": line[:500]  # Store raw line for reference
                     }
                     
+                    # Apply flagging logic
+                    transaction = self._apply_flagging(transaction)
+                    
                     transactions.append(transaction)
                     
                 except Exception as e:
@@ -164,6 +167,41 @@ class TransactionExtractionService:
                     continue
         
         return transactions
+
+    def _apply_flagging(self, transaction: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Apply rule-based flagging to a transaction.
+        """
+        debit = transaction.get("debit")
+        credit = transaction.get("credit")
+        description = transaction.get("description", "").lower()
+        
+        is_flagged = False
+        flag_reason = None
+        
+        # Determine the transaction amount
+        amount = debit if debit is not None else (credit if credit is not None else 0)
+        
+        # Flagging Rules
+        if amount and amount > 100000:
+            is_flagged = True
+            flag_reason = "High value transaction (> 1 Lakh)"
+        elif "cash" in description:
+            is_flagged = True
+            flag_reason = "Cash transaction detected"
+        elif "suspense" in description:
+            is_flagged = True
+            flag_reason = "Suspense account usage"
+        elif "personal" in description:
+            is_flagged = True
+            flag_reason = "Potential personal expense"
+        elif amount and amount > 1000 and amount % 5000 == 0:
+             is_flagged = True
+             flag_reason = "Round figure amount detected"
+
+        transaction["is_flagged"] = is_flagged
+        transaction["flag_reason"] = flag_reason
+        return transaction
     
     def _parse_date(self, date_str: str) -> datetime:
         """

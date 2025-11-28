@@ -82,7 +82,8 @@ class TransactionService:
             return {
                 "success": True, 
                 "count": len(data.data) if data.data else len(batch_data), 
-                "message": "Bulk insert successful"
+                "message": "Bulk insert successful",
+                "data": data.data if data.data else []
             }
             
         except Exception as e:

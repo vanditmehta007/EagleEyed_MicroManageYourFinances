@@ -116,121 +116,137 @@ const SharedDocumentView: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-slate-950 flex items-center justify-center text-white">
-                <div className="animate-pulse">Loading documents...</div>
+            <div className="min-h-screen bg-background flex items-center justify-center text-foreground">
+                <div className="animate-pulse text-muted-foreground">Loading documents...</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-950 p-6">
+        <div className="min-h-screen bg-background p-6">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
                     <button
                         onClick={() => navigate('/')}
-                        className="text-slate-400 hover:text-white mb-4 flex items-center gap-2"
+                        className="text-muted-foreground hover:text-primary mb-4 flex items-center gap-2 transition-colors font-medium"
                     >
                         ← Back to Dashboard
                     </button>
-                    <h1 className="text-3xl font-bold text-white mb-2">
+                    <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
                         {client?.name || 'Client'} Documents
                     </h1>
-                    <p className="text-slate-400">
-                        {client?.gstin && `GSTIN: ${client.gstin}`}
-                        {client?.gstin && client?.pan && ' • '}
-                        {client?.pan && `PAN: ${client.pan}`}
-                    </p>
-                    <p className="text-slate-500 text-sm mt-2">
-                        Total Documents: {documents.length}
-                    </p>
+                    <div className="flex items-center gap-3 text-muted-foreground text-sm">
+                        {client?.gstin && (
+                            <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md border border-blue-100 font-medium">
+                                GSTIN: {client.gstin}
+                            </span>
+                        )}
+                        {client?.pan && (
+                            <span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md border border-emerald-100 font-medium">
+                                PAN: {client.pan}
+                            </span>
+                        )}
+                        <span className="ml-auto font-medium">Total Documents: {documents.length}</span>
+                    </div>
                 </div>
 
                 {/* Document Tree */}
-                <div className="card">
+                <div className="glass border border-border/50 rounded-xl shadow-sm overflow-hidden">
                     {Object.keys(organizedDocs).length === 0 ? (
-                        <div className="text-center py-12 text-slate-400">
-                            No documents found for this client.
+                        <div className="text-center py-16 text-muted-foreground">
+                            <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <Folder className="w-8 h-8 text-muted-foreground/50" />
+                            </div>
+                            <p className="text-lg font-medium text-foreground/80">No documents found</p>
+                            <p className="text-sm">Documents uploaded by this client will appear here.</p>
                         </div>
                     ) : (
-                        <div className="space-y-2">
+                        <div className="divide-y divide-border/50">
                             {Object.keys(organizedDocs).sort((a, b) => parseInt(b) - parseInt(a)).map((year) => (
-                                <div key={year} className="border-b border-slate-700/50 last:border-0">
+                                <div key={year} className="bg-white/40">
                                     {/* Year Header */}
                                     <button
                                         onClick={() => toggleYear(year)}
-                                        className="w-full flex items-center gap-3 p-4 hover:bg-slate-800/50 transition-colors text-left"
+                                        className="w-full flex items-center gap-4 p-5 hover:bg-white/60 transition-all text-left group"
                                     >
                                         <ChevronRight
-                                            className={`text-slate-400 transition-transform ${expandedYears.has(year) ? 'rotate-90' : ''
-                                                }`}
+                                            className={`text-muted-foreground transition-transform duration-200 ${expandedYears.has(year) ? 'rotate-90' : ''}`}
                                             size={20}
                                         />
-                                        <Calendar className="text-blue-400" size={20} />
-                                        <span className="text-white font-semibold text-lg">{year}</span>
-                                        <span className="text-slate-500 text-sm ml-auto">
+                                        <div className="p-2 bg-blue-100 text-blue-600 rounded-lg group-hover:scale-105 transition-transform">
+                                            <Calendar size={20} />
+                                        </div>
+                                        <span className="text-foreground font-bold text-lg">{year}</span>
+                                        <span className="text-muted-foreground text-sm ml-auto bg-white/50 px-3 py-1 rounded-full border border-border/50">
                                             {Object.values(organizedDocs[year]).flat().length} documents
                                         </span>
                                     </button>
 
                                     {/* Months */}
                                     {expandedYears.has(year) && (
-                                        <div className="pl-8 bg-slate-900/30">
+                                        <div className="bg-muted/30 border-t border-border/50">
                                             {Object.keys(organizedDocs[year]).map((month) => {
                                                 const yearMonth = `${year}-${month}`;
                                                 return (
-                                                    <div key={month} className="border-t border-slate-700/30">
+                                                    <div key={month} className="border-t border-border/50 first:border-0">
                                                         {/* Month Header */}
                                                         <button
                                                             onClick={() => toggleMonth(yearMonth)}
-                                                            className="w-full flex items-center gap-3 p-3 hover:bg-slate-800/30 transition-colors text-left"
+                                                            className="w-full flex items-center gap-3 p-4 pl-12 hover:bg-white/50 transition-colors text-left group"
                                                         >
                                                             <ChevronRight
-                                                                className={`text-slate-400 transition-transform ${expandedMonths.has(yearMonth) ? 'rotate-90' : ''
-                                                                    }`}
+                                                                className={`text-muted-foreground transition-transform duration-200 ${expandedMonths.has(yearMonth) ? 'rotate-90' : ''}`}
                                                                 size={18}
                                                             />
-                                                            <Folder className="text-emerald-400" size={18} />
-                                                            <span className="text-white font-medium">{month}</span>
-                                                            <span className="text-slate-500 text-sm ml-auto">
+                                                            <Folder className="text-emerald-600 group-hover:text-emerald-500 transition-colors" size={18} />
+                                                            <span className="text-foreground font-semibold">{month}</span>
+                                                            <span className="text-muted-foreground text-xs ml-auto">
                                                                 {organizedDocs[year][month].length} files
                                                             </span>
                                                         </button>
 
                                                         {/* Documents */}
                                                         {expandedMonths.has(yearMonth) && (
-                                                            <div className="pl-8 space-y-1 pb-2">
+                                                            <div className="pl-16 pr-4 pb-3 space-y-1">
                                                                 {organizedDocs[year][month].map((doc: Document) => (
                                                                     <div
                                                                         key={doc.id}
-                                                                        className="flex items-center gap-3 p-3 hover:bg-slate-800/30 rounded-lg transition-colors group"
+                                                                        className="flex items-center gap-4 p-3 hover:bg-white rounded-xl border border-transparent hover:border-blue-100 hover:shadow-sm transition-all group cursor-default"
                                                                     >
-                                                                        <FileText className="text-slate-400" size={16} />
+                                                                        <div className="p-2 bg-white border border-border/50 rounded-lg text-muted-foreground group-hover:text-blue-600 group-hover:border-blue-100 transition-colors">
+                                                                            <FileText size={18} />
+                                                                        </div>
                                                                         <div className="flex-1 min-w-0">
-                                                                            <p className="text-white text-sm font-medium truncate">
+                                                                            <p className="text-foreground text-sm font-semibold truncate group-hover:text-primary transition-colors">
                                                                                 {doc.original_filename}
                                                                             </p>
-                                                                            <p className="text-slate-500 text-xs">
-                                                                                {doc.file_type?.replace('_', ' ')} •{' '}
-                                                                                {doc.file_size
-                                                                                    ? `${(doc.file_size / 1024).toFixed(1)} KB`
-                                                                                    : 'Unknown size'}
+                                                                            <p className="text-muted-foreground text-xs flex items-center gap-2 mt-0.5">
+                                                                                <span className="uppercase tracking-wider text-[10px] font-bold bg-muted px-1.5 py-0.5 rounded text-muted-foreground/70">
+                                                                                    {doc.file_type?.replace('_', ' ')}
+                                                                                </span>
+                                                                                <span>•</span>
+                                                                                <span>
+                                                                                    {doc.file_size
+                                                                                        ? `${(doc.file_size / 1024).toFixed(1)} KB`
+                                                                                        : 'Unknown size'}
+                                                                                </span>
                                                                             </p>
                                                                         </div>
-                                                                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                             <button
                                                                                 onClick={() => handleView(doc)}
-                                                                                className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                                                                className="p-2 hover:bg-blue-50 hover:text-blue-600 rounded-lg text-muted-foreground transition-colors"
                                                                                 title="View"
                                                                             >
-                                                                                <Eye size={16} />
+                                                                                <Eye size={18} />
                                                                             </button>
                                                                             <button
                                                                                 onClick={() => handleDownload(doc)}
-                                                                                className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+                                                                                className="p-2 hover:bg-blue-50 hover:text-blue-600 rounded-lg text-muted-foreground transition-colors"
                                                                                 title="Download"
                                                                             >
-                                                                                <Download size={16} />
+                                                                                <Download size={18} />
                                                                             </button>
                                                                         </div>
                                                                     </div>

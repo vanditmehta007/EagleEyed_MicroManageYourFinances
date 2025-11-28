@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Key, Save, Eye, EyeOff, Cloud, CheckCircle, AlertCircle } from 'lucide-react';
 import api from '../services/api';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Label } from '../components/ui/label';
+import { Badge } from '../components/ui/badge';
 
 interface IntegrationCredentials {
     platform: string;
@@ -72,58 +78,63 @@ const Settings: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+        >
             <div>
-                <h1 className="text-3xl font-bold text-white mb-2">Settings</h1>
-                <p className="text-slate-400">Configure your accounting platform integrations</p>
+                <h1 className="text-3xl font-bold tracking-tight mb-2">Settings</h1>
+                <p className="text-muted-foreground">Configure your accounting platform integrations</p>
             </div>
 
             {message && (
-                <div className={`p-4 rounded-lg border ${message.type === 'success'
-                        ? 'bg-emerald-900/20 border-emerald-500/50 text-emerald-300'
-                        : 'bg-red-900/20 border-red-500/50 text-red-300'
-                    }`}>
-                    <div className="flex items-center gap-2">
-                        {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
-                        <span>{message.text}</span>
-                    </div>
-                </div>
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className={`p-4 rounded-lg border flex items-center gap-2 ${message.type === 'success'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                        : 'bg-destructive/10 border-destructive/20 text-destructive'
+                        }`}
+                >
+                    {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+                    <span>{message.text}</span>
+                </motion.div>
             )}
 
-            <div className="card">
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <Cloud size={24} className="text-blue-400" />
-                    Integration Credentials
-                </h2>
-                <p className="text-slate-400 text-sm mb-6">
-                    Save your API credentials once to enable seamless imports from accounting platforms.
-                </p>
-
-                <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Cloud className="w-5 h-5 text-blue-600" />
+                        Integration Credentials
+                    </CardTitle>
+                    <CardDescription>
+                        Save your API credentials once to enable seamless imports from accounting platforms.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
                     {Object.entries(credentials).map(([key, cred]) => (
-                        <div key={key} className="p-6 bg-slate-800/50 rounded-lg border border-slate-700">
+                        <div key={key} className="p-6 bg-muted rounded-lg border border-border">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                                    <Key size={20} className="text-blue-400" />
+                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                    <Key size={20} className="text-blue-600" />
                                     {cred.platform}
                                 </h3>
                                 {cred.isConfigured && (
-                                    <span className="text-xs bg-emerald-900/30 text-emerald-400 px-3 py-1 rounded-full flex items-center gap-1">
-                                        <CheckCircle size={14} />
+                                    <Badge variant="success" className="gap-1">
+                                        <CheckCircle size={12} />
                                         Configured
-                                    </span>
+                                    </Badge>
                                 )}
                             </div>
 
                             <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                                        API Key
-                                    </label>
+                                <div className="space-y-2">
+                                    <Label>API Key</Label>
                                     <div className="relative">
-                                        <input
+                                        <Input
                                             type={showKeys[key] ? 'text' : 'password'}
-                                            className="input-field w-full pr-12"
+                                            className="pr-12"
                                             placeholder="Enter your API key"
                                             value={cred.apiKey}
                                             onChange={(e) => setCredentials(prev => ({
@@ -131,22 +142,21 @@ const Settings: React.FC = () => {
                                                 [key]: { ...prev[key], apiKey: e.target.value }
                                             }))}
                                         />
-                                        <button
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
                                             onClick={() => toggleShowKey(key)}
-                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                                            className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
                                         >
-                                            {showKeys[key] ? <EyeOff size={18} /> : <Eye size={18} />}
-                                        </button>
+                                            {showKeys[key] ? <EyeOff size={16} /> : <Eye size={16} />}
+                                        </Button>
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                                        Organization ID
-                                    </label>
-                                    <input
+                                <div className="space-y-2">
+                                    <Label>Organization ID</Label>
+                                    <Input
                                         type="text"
-                                        className="input-field w-full"
                                         placeholder="Enter your organization ID"
                                         value={cred.organizationId || ''}
                                         onChange={(e) => setCredentials(prev => ({
@@ -156,18 +166,27 @@ const Settings: React.FC = () => {
                                     />
                                 </div>
 
-                                <button
+                                <Button
                                     onClick={() => handleSave(key)}
                                     disabled={saving === key || !cred.apiKey}
-                                    className="btn-primary w-full flex items-center justify-center gap-2"
+                                    className="w-full"
                                 >
-                                    <Save size={18} />
-                                    {saving === key ? 'Saving...' : 'Save Credentials'}
-                                </button>
+                                    {saving === key ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                            Saving...
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Save className="mr-2 w-4 h-4" />
+                                            Save Credentials
+                                        </>
+                                    )}
+                                </Button>
                             </div>
 
-                            <div className="mt-4 p-3 bg-blue-900/20 rounded-lg border border-blue-900/50">
-                                <p className="text-xs text-blue-300">
+                            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <p className="text-xs text-blue-700">
                                     <strong>How to get your API credentials:</strong><br />
                                     {key === 'zoho-books' && 'Visit Zoho Developer Console → Create a Server-based Application → Copy Client ID and Secret'}
                                     {key === 'google-sheets' && 'Visit Google Cloud Console → Enable Sheets API → Create OAuth 2.0 credentials'}
@@ -175,17 +194,19 @@ const Settings: React.FC = () => {
                             </div>
                         </div>
                     ))}
-                </div>
-            </div>
+                </CardContent>
+            </Card>
 
-            <div className="card bg-slate-800/30">
-                <h3 className="text-lg font-bold text-white mb-3">Security Note</h3>
-                <p className="text-slate-400 text-sm">
-                    Your API credentials are encrypted and stored securely in the database.
-                    They are only used to import data from your accounting platforms and are never shared with third parties.
-                </p>
-            </div>
-        </div>
+            <Card className="bg-muted border-none">
+                <CardContent className="p-6">
+                    <h3 className="text-lg font-bold mb-3">Security Note</h3>
+                    <p className="text-muted-foreground text-sm">
+                        Your API credentials are encrypted and stored securely in the database.
+                        They are only used to import data from your accounting platforms and are never shared with third parties.
+                    </p>
+                </CardContent>
+            </Card>
+        </motion.div>
     );
 };
 

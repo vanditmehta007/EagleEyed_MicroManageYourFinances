@@ -42,13 +42,16 @@ class JWTVerificationMiddleware(BaseHTTPMiddleware):
             # Fetch actual user role from database
             from backend.utils.supabase_client import supabase
             try:
-                user_response = supabase.table("users").select("role").eq("id", user_id).single().execute()
-                if user_response.data:
-                    user_role = user_response.data.get("role", "client")
+                # Use maybe_single() or execute() and check list to avoid exception on 0 rows
+                user_response = supabase.table("users").select("role").eq("id", user_id).execute()
+                if user_response.data and len(user_response.data) > 0:
+                    user_role = user_response.data[0].get("role", "client")
                 else:
-                    user_role = "client"  # Default fallback
+                    # User authenticated but not in public.users table yet
+                    user_role = "client" 
             except Exception as e:
-                print(f"Failed to fetch user role from database: {e}")
+                # Log only if it's not a 'no rows' issue, or just debug
+                # print(f"Warning: Failed to fetch user role: {e}")
                 user_role = "client"  # Default fallback
             
             # Attach user info to request state

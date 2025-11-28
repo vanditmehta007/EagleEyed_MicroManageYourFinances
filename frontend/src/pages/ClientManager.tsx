@@ -3,6 +3,13 @@ import { Search, Plus, Trash2, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { motion } from 'framer-motion';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 interface Client {
     id: string;
@@ -53,79 +60,101 @@ const ClientManager: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+        >
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Client Manager</h1>
-                    <p className="text-slate-400">Manage your clients and their documents</p>
+                    <h1 className="text-3xl font-bold tracking-tight mb-2">Client Manager</h1>
+                    <p className="text-muted-foreground">Manage your clients and their documents</p>
                 </div>
-                <button className="btn-primary flex items-center gap-2">
-                    <Plus size={20} />
+                <Button className="flex items-center gap-2">
+                    <Plus size={16} />
                     Add Client
-                </button>
+                </Button>
             </div>
 
-            <div className="card">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-                        <input
-                            type="text"
-                            placeholder="Search clients..."
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg pl-10 pr-4 py-2 text-white focus:outline-none focus:border-blue-500"
-                        />
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle>Clients</CardTitle>
+                        <div className="relative w-64">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input placeholder="Search clients..." className="pl-8" />
+                        </div>
                     </div>
-                </div>
-
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b border-slate-700 text-slate-400 text-sm">
-                                <th className="p-4 font-medium">Name</th>
-                                <th className="p-4 font-medium">Email/GSTIN</th>
-                                <th className="p-4 font-medium">Status</th>
-                                <th className="p-4 font-medium">Documents</th>
-                                <th className="p-4 font-medium text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-slate-300">
-                            {loading ? (
-                                <tr><td colSpan={5} className="p-4 text-center">Loading clients...</td></tr>
-                            ) : clients.length === 0 ? (
-                                <tr><td colSpan={5} className="p-4 text-center">No clients found.</td></tr>
-                            ) : (
-                                clients.map((client) => (
-                                    <tr key={client.id} className="border-b border-slate-700/50 hover:bg-slate-700/20 transition-colors">
-                                        <td className="p-4 font-medium text-white">{client.name}</td>
-                                        <td className="p-4">{client.email}</td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active' ? 'bg-emerald-900/30 text-emerald-400' : 'bg-slate-700 text-slate-400'
-                                                }`}>
-                                                {client.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">{client.documents}</td>
-                                        <td className="p-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <button className="p-2 hover:bg-slate-700 rounded-lg text-blue-400 transition-colors" title="View Details">
-                                                    <Eye size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(client.id)}
-                                                    className="p-2 hover:bg-red-900/20 rounded-lg text-red-400 transition-colors"
-                                                    title="Delete Client"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Email/GSTIN</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Documents</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            Loading clients...
+                                        </TableCell>
+                                    </TableRow>
+                                ) : clients.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={5} className="h-24 text-center">
+                                            No clients found.
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    clients.map((client) => (
+                                        <TableRow key={client.id}>
+                                            <TableCell className="font-medium">
+                                                <div className="flex items-center gap-3">
+                                                    <Avatar className="h-8 w-8">
+                                                        <AvatarFallback className="bg-primary/10 text-primary">
+                                                            {client.name.substring(0, 2).toUpperCase()}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    {client.name}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>{client.email}</TableCell>
+                                            <TableCell>
+                                                <Badge className={client.status === 'Active' ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200' : 'bg-muted text-muted-foreground'}>
+                                                    {client.status}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>{client.documents}</TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <Button variant="ghost" size="icon" title="View Details">
+                                                        <Eye size={16} className="text-blue-600" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => handleDelete(client.id)}
+                                                        title="Delete Client"
+                                                    >
+                                                        <Trash2 size={16} className="text-destructive" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
     );
 };
 
