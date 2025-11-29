@@ -59,7 +59,7 @@ const Dashboard: React.FC = () => {
             className="space-y-8 p-1"
         >
             <motion.div variants={item}>
-                <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">Dashboard</h1>
+                <h1 className="text-3xl font-bold tracking-tight mb-2 text-foreground">CA Dashboard</h1>
                 <p className="text-muted-foreground">Overview of your compliance activities</p>
             </motion.div>
 

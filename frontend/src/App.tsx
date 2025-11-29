@@ -14,6 +14,7 @@ import SharedDocumentsList from './pages/SharedDocumentsList';
 import ClientDashboard from './pages/ClientDashboard';
 import AcceptInvite from './pages/AcceptInvite';
 import Settings from './pages/Settings';
+import LandingPage from './pages/LandingPage';
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -29,18 +30,19 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 const AppRoutes: React.FC = () => {
     return (
         <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/share/:id" element={<SharedDocumentView />} />
             <Route path="/share/documents/:clientId" element={<SharedDocumentView />} />
             <Route path="/share/invite/:token" element={<AcceptInvite />} />
 
-            <Route path="/" element={
+            <Route element={
                 <ProtectedRoute>
                     <MainLayout />
                 </ProtectedRoute>
             }>
-                <Route index element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="chat" element={<AIChat />} />
                 <Route path="clients" element={<ClientManager />} />
                 <Route path="shared-documents" element={<SharedDocumentsList />} />

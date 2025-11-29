@@ -96,7 +96,7 @@ const ClientDashboard: React.FC = () => {
         >
             <motion.div variants={item} className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight mb-2">My Dashboard</h1>
+                    <h1 className="text-3xl font-bold tracking-tight mb-2">Client Dashboard</h1>
                     <p className="text-muted-foreground">Upload, manage, and share your financial documents</p>
                 </div>
             </motion.div>
